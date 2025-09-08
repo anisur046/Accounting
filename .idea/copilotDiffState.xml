@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CopilotDiffPersistence">
+    <option name="pendingDiffs">
+      <map>
+        <entry key="$PROJECT_DIR$/accounting-frontend/HpAccountingFrontendMe.js">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/accounting-frontend/HpAccountingFrontendMe.js" />
+              <option name="updatedContent" value="import React from 'react';&#10;&#10;const HpAccountingFrontendMe = () =&gt; {&#10;  return (&#10;    &lt;div&gt;&#10;      &lt;h1&gt;HpAccountingFrontendMe Page&lt;/h1&gt;&#10;      &lt;p&gt;Welcome to the hpaccounting-frontendme page!&lt;/p&gt;&#10;    &lt;/div&gt;&#10;  );&#10;};&#10;&#10;export default HpAccountingFrontendMe;&#10;" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
