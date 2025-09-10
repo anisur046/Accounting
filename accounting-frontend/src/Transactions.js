@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 function Transactions() {
   const [transactions, setTransactions] = useState([]);
   const [form, setForm] = useState({ amount: '', type: 'income', description: '' });
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/transactions')
+    fetch('http://localhost:3001/api/transactions')
       .then(res => res.json())
       .then(setTransactions);
   }, []);
@@ -16,7 +17,7 @@ function Transactions() {
 
   const handleSubmit = e => {
     e.preventDefault();
-    fetch('http://localhost:5000/api/transactions', {
+    fetch('http://localhost:3001/api/transactions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form)
@@ -47,4 +48,3 @@ function Transactions() {
 }
 
 export default Transactions;
-

@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 function Reports() {
   const [reports, setReports] = useState([]);
   const [form, setForm] = useState({ title: '', content: '' });
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/reports')
+    fetch('http://localhost:3001/api/reports')
       .then(res => res.json())
       .then(setReports);
   }, []);
@@ -16,7 +17,7 @@ function Reports() {
 
   const handleSubmit = e => {
     e.preventDefault();
-    fetch('http://localhost:5000/api/reports', {
+    fetch('http://localhost:3001/api/reports', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form)

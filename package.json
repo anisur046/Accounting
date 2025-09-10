@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "mysql2": "^3.14.5"
+    "mysql2": "^3.14.5",
+    "react-router-dom": "^7.8.2"
   }
 }

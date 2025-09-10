@@ -1,27 +1,44 @@
 import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './Home';
 import Users from './Users';
 import Transactions from './Transactions';
 import Reports from './Reports';
+import Navbar from './Navbar';
+import Login from './Login';
+import ResetPassword from './ResetPassword';
+import Customer from './Customer';
 
 function App() {
-  const [page, setPage] = useState('dashboard');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+  };
+
+  if (!isAuthenticated) {
+    return <Login onLogin={handleLogin} />;
+  }
 
   return (
-    <div>
-      <h1>Accounting Software</h1>
-      <nav>
-        <button onClick={() => setPage('dashboard')}>Dashboard</button>
-        <button onClick={() => setPage('users')}>Users</button>
-        <button onClick={() => setPage('transactions')}>Transactions</button>
-        <button onClick={() => setPage('reports')}>Reports</button>
-      </nav>
+    <Router>
       <div>
-        {page === 'dashboard' && <p>Welcome to your accounting dashboard.</p>}
-        {page === 'users' && <Users />}
-        {page === 'transactions' && <Transactions />}
-        {page === 'reports' && <Reports />}
+        <Navbar onLogout={handleLogout} />
+        <hr />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/users" element={<Users />} />
+          <Route path="/transactions" element={<Transactions />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/customers" element={<Customer />} />
+        </Routes>
       </div>
-    </div>
+    </Router>
   );
 }
 

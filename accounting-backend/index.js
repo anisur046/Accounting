@@ -5,6 +5,10 @@ const { sequelize } = require('./models');
 const User = require('./models/User');
 const Transaction = require('./models/Transaction');
 const Report = require('./models/Report');
+const { Customer } = require('./models');
+const bcrypt = require('bcrypt');
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 
 const app = express();
 app.use(cors());
@@ -98,8 +102,131 @@ app.delete('/api/reports/:id', async (req, res) => {
   }
 });
 
+// Customer CRUD
+app.get('/api/customers', async (req, res) => {
+  const customers = await Customer.findAll();
+  res.json(customers);
+});
+app.post('/api/customers', async (req, res) => {
+  try {
+    const customer = await Customer.create(req.body);
+    res.json(customer);
+  } catch (err) {
+    res.status(400).json({ message: 'Error creating customer', error: err.message });
+  }
+});
+app.put('/api/customers/:id', async (req, res) => {
+  const customer = await Customer.findByPk(req.params.id);
+  if (customer) {
+    await customer.update(req.body);
+    res.json(customer);
+  } else {
+    res.status(404).send('Customer not found');
+  }
+});
+app.delete('/api/customers/:id', async (req, res) => {
+  const customer = await Customer.findByPk(req.params.id);
+  if (customer) {
+    await customer.destroy();
+    res.sendStatus(204);
+  } else {
+    res.status(404).send('Customer not found');
+  }
+});
+
+// User Registration
+app.post('/api/register', async (req, res) => {
+  const { name, email, password } = req.body;
+  try {
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email already registered' });
+    }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await User.create({ name, email, password: hashedPassword });
+    res.json({ message: 'User registered successfully', user: { id: user.id, name: user.name, email: user.email } });
+  } catch (err) {
+    res.status(500).json({ message: 'Registration failed', error: err.message });
+  }
+});
+
+// User Login
+app.post('/api/login', async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+    res.json({ message: 'Login successful', user: { id: user.id, name: user.name, email: user.email } });
+  } catch (err) {
+    res.status(500).json({ message: 'Login failed', error: err.message });
+  }
+});
+
+// Configure nodemailer (use your real email credentials in production)
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'your.email@gmail.com', // replace with your email
+    pass: 'yourpassword' // replace with your email password or app password
+  }
+});
+
+// Forgot Password (send reset link)
+app.post('/api/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    // Generate token and expiry
+    const token = crypto.randomBytes(32).toString('hex');
+    const expires = Date.now() + 3600000; // 1 hour
+    await user.update({ resetPasswordToken: token, resetPasswordExpires: new Date(expires) });
+    // Send email
+    const resetUrl = `http://localhost:3000/reset-password/${token}`;
+    await transporter.sendMail({
+      to: user.email,
+      subject: 'Password Reset Request',
+      html: `<p>You requested a password reset for your Accounting App account.</p>
+             <p>Click <a href="${resetUrl}">here</a> to reset your password. This link is valid for 1 hour.</p>`
+    });
+    res.json({ message: 'Password reset link sent to your email.' });
+  } catch (err) {
+    console.error('Error sending reset password email:', err);
+    res.status(500).json({ message: 'Failed to send reset email', error: err.message });
+  }
+});
+
+// Reset Password (via link)
+app.post('/api/reset-password', async (req, res) => {
+  const { token, newPassword } = req.body;
+  try {
+    const user = await User.findOne({
+      where: {
+        resetPasswordToken: token,
+        resetPasswordExpires: { [require('sequelize').Op.gt]: new Date() }
+      }
+    });
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid or expired token' });
+    }
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await user.update({ password: hashedPassword, resetPasswordToken: null, resetPasswordExpires: null });
+    res.json({ message: 'Password has been reset successfully.' });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to reset password', error: err.message });
+  }
+});
+
 const PORT = process.env.PORT || 3001;
-sequelize.sync().then(() => {
+sequelize.sync({ alter: true }).then(() => {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
