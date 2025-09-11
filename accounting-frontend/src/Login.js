@@ -7,6 +7,7 @@ function Login({ onLogin }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const resetFields = () => {
     setName(''); setEmail(''); setPassword(''); setError(''); setSuccess('');
@@ -15,21 +16,32 @@ function Login({ onLogin }) {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError(''); setSuccess('');
+    if (loading) return;
+    setLoading(true);
     try {
       const res = await fetch('http://localhost:3001/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       });
-      const data = await res.json();
-      if (res.ok) {
+      let data = {};
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        setError('Invalid server response');
+        setLoading(false);
+        return;
+      }
+      if (res.ok && data.user) {
         setSuccess('Login successful!');
-        onLogin(data.user);
+        if (typeof onLogin === 'function') onLogin(data.user);
       } else {
         setError(data.message || 'Login failed');
       }
     } catch (err) {
       setError('Network error');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -197,6 +209,7 @@ function Login({ onLogin }) {
               value={email}
               onChange={e => setEmail(e.target.value)}
               required
+              disabled={loading}
             />
             <input
               type="password"
@@ -204,11 +217,12 @@ function Login({ onLogin }) {
               value={password}
               onChange={e => setPassword(e.target.value)}
               required
+              disabled={loading}
             />
-            <button type="submit">Login</button>
+            <button type="submit" disabled={loading}>{loading ? 'Logging in...' : 'Login'}</button>
             <div className="login-actions">
-              <button type="button" onClick={() => { setMode('register'); resetFields(); }} className="secondary-btn left-btn">Register</button>
-              <button type="button" onClick={() => { setMode('forgot'); resetFields(); }} className="secondary-btn right-btn">Forgot Password</button>
+              <button type="button" onClick={() => { setMode('register'); resetFields(); }} className="secondary-btn left-btn" disabled={loading}>Register</button>
+              <button type="button" onClick={() => { setMode('forgot'); resetFields(); }} className="secondary-btn right-btn" disabled={loading}>Forgot Password</button>
             </div>
           </form>
         )}

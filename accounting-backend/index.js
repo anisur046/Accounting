@@ -1,11 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const { sequelize } = require('./models');
-const User = require('./models/User');
-const Transaction = require('./models/Transaction');
-const Report = require('./models/Report');
-const { Customer } = require('./models');
+const { sequelize, User, Transaction, Report, Customer } = require('./models');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
