@@ -5,15 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fd54d98f-b0e5-4f12-b9dc-013370505fbc" name="Changes" comment="function changes">
+      <change afterPath="$PROJECT_DIR$/accounting-frontend/src/Transactions.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/accounting-backend/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/accounting-backend/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/accounting-frontend/node_modules/.cache/.eslintcache" beforeDir="false" afterPath="$PROJECT_DIR$/accounting-frontend/node_modules/.cache/.eslintcache" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/accounting-frontend/node_modules/.cache/default-development/0.pack" beforeDir="false" afterPath="$PROJECT_DIR$/accounting-frontend/node_modules/.cache/default-development/0.pack" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/accounting-frontend/node_modules/.cache/default-development/1.pack" beforeDir="false" afterPath="$PROJECT_DIR$/accounting-frontend/node_modules/.cache/default-development/1.pack" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/accounting-frontend/node_modules/.cache/default-development/2.pack" beforeDir="false" afterPath="$PROJECT_DIR$/accounting-frontend/node_modules/.cache/default-development/2.pack" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/accounting-frontend/node_modules/.cache/default-development/4.pack" beforeDir="false" afterPath="$PROJECT_DIR$/accounting-frontend/node_modules/.cache/default-development/4.pack" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/accounting-frontend/node_modules/.cache/default-development/index.pack" beforeDir="false" afterPath="$PROJECT_DIR$/accounting-frontend/node_modules/.cache/default-development/index.pack" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/accounting-frontend/node_modules/.cache/default-development/index.pack.old" beforeDir="false" afterPath="$PROJECT_DIR$/accounting-frontend/node_modules/.cache/default-development/index.pack.old" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/accounting-frontend/src/Login.js" beforeDir="false" afterPath="$PROJECT_DIR$/accounting-frontend/src/Login.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/accounting-frontend/src/Transactions.js" beforeDir="false" afterPath="$PROJECT_DIR$/accounting-frontend/src/Transactions.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -83,8 +84,8 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="npm.server" />
       <item itemvalue="npm.client" />
+      <item itemvalue="npm.server" />
     </list>
   </component>
   <component name="SharedIndexes">
@@ -111,8 +112,20 @@
       <workItem from="1757397735941" duration="801000" />
       <workItem from="1757398885376" duration="13233000" />
       <workItem from="1757489312845" duration="14701000" />
-      <workItem from="1757590898586" duration="757000" />
+      <workItem from="1757590898586" duration="1274000" />
+      <workItem from="1757675837264" duration="944000" />
+      <workItem from="1764055031172" duration="88000" />
+      <workItem from="1764055137769" duration="38000" />
     </task>
+    <task id="LOCAL-00001" summary="function changes">
+      <option name="closed" value="true" />
+      <created>1757591668492</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1757591668492</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

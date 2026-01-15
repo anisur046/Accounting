@@ -20,8 +20,14 @@ app.get('/api/users', async (req, res) => {
   res.json(users);
 });
 app.post('/api/users', async (req, res) => {
-  const user = await User.create(req.body);
-  res.json(user);
+  try {
+    const { name, email, password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await User.create({ name, email, password: hashedPassword });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: 'Error creating user', error: err.message });
+  }
 });
 app.put('/api/users/:id', async (req, res) => {
   const user = await User.findByPk(req.params.id);
@@ -43,14 +49,71 @@ app.delete('/api/users/:id', async (req, res) => {
 });
 
 // Transaction CRUD
+app.get('/api/transactions/balance', async (req, res) => {
+  const { toDate } = req.query;
+  const { Op } = require('sequelize');
+  try {
+    const end = new Date(toDate);
+    const transactions = await Transaction.findAll({
+      where: {
+        date: {
+          [Op.lt]: end
+        }
+      }
+    });
+
+    let currentBalance = 0.0;
+    transactions.forEach(tx => {
+      const amount = parseFloat(tx.amount);
+      if (!isNaN(amount)) {
+        if (tx.type === 'income') {
+          currentBalance = currentBalance + amount;
+        } else if (tx.type === 'expense') {
+          currentBalance = currentBalance - amount;
+        }
+      }
+    });
+
+    res.json({ balance: Math.round(currentBalance * 100) / 100 });
+  } catch (err) {
+    res.status(500).json({ message: 'Error calculating balance', error: err.message });
+  }
+});
+
+app.get('/api/transactions/report', async (req, res) => {
+  const { fromDate, toDate } = req.query;
+  console.log('Fetching report for range:', fromDate, 'to', toDate);
+  const { Op } = require('sequelize');
+  try {
+    const start = new Date(fromDate);
+    const end = new Date(toDate + 'T23:59:59');
+    console.log('Query date objects:', start, end);
+    const transactions = await Transaction.findAll({
+      where: {
+        date: {
+          [Op.between]: [start, end]
+        }
+      },
+      order: [['date', 'ASC']]
+    });
+    console.log('Found transactions count:', transactions.length);
+    res.json(transactions);
+  } catch (err) {
+    console.error('Report error:', err);
+    res.status(500).json({ message: 'Error fetching report', error: err.message });
+  }
+});
+
 app.get('/api/transactions', async (req, res) => {
   const transactions = await Transaction.findAll();
   res.json(transactions);
 });
+
 app.post('/api/transactions', async (req, res) => {
   const transaction = await Transaction.create(req.body);
   res.json(transaction);
 });
+
 app.put('/api/transactions/:id', async (req, res) => {
   const transaction = await Transaction.findByPk(req.params.id);
   if (transaction) {

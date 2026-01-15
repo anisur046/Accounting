@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './Home';
 import Users from './Users';
@@ -10,17 +10,30 @@ import ResetPassword from './ResetPassword';
 import Customer from './Customer';
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const handleLogin = () => {
-    setIsAuthenticated(true);
+  useEffect(() => {
+    const savedUser = localStorage.getItem('accounting_user');
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+    setLoading(false);
+  }, []);
+
+  const handleLogin = (userData) => {
+    setUser(userData);
+    localStorage.setItem('accounting_user', JSON.stringify(userData));
   };
 
   const handleLogout = () => {
-    setIsAuthenticated(false);
+    setUser(null);
+    localStorage.removeItem('accounting_user');
   };
 
-  if (!isAuthenticated) {
+  if (loading) return null; // Or a loading spinner
+
+  if (!user) {
     return <Login onLogin={handleLogin} />;
   }
 

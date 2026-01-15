@@ -4,7 +4,7 @@
   "description": "Backend for accounting software",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "nodemon index.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -14,5 +14,8 @@
     "nodemailer": "^7.0.6",
     "sequelize": "^6.32.1",
     "sqlite3": "^5.1.6"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
   }
 }
