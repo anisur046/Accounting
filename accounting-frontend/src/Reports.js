@@ -32,32 +32,46 @@ function Reports() {
     if (!fDate || !tDate) return;
 
     setLoading(true);
-    setSearched(true);
     setError('');
     try {
+      const fetchWithTimeout = async (url, options = {}) => {
+        const { timeout = 10000 } = options;
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeout);
+        const response = await fetch(url, { ...options, signal: controller.signal });
+        clearTimeout(id);
+        return response;
+      };
+
       // If Daybook, also fetch opening balance
       let openingBal = 0;
       if (reportType === 'Daybook') {
-        const balRes = await fetch(`http://localhost:3001/api/transactions/balance?toDate=${fDate}`);
+        const balRes = await fetchWithTimeout(`http://localhost:3001/api/transactions/balance?toDate=${fDate}`);
         const balData = await balRes.json();
         openingBal = balData.balance || 0;
       }
 
-      const res = await fetch(`http://localhost:3001/api/transactions/report?fromDate=${fDate}&toDate=${tDate}`);
+      const res = await fetchWithTimeout(`http://localhost:3001/api/transactions/report?fromDate=${fDate}&toDate=${tDate}`);
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
         throw new Error(errorData.message || `Server error: ${res.status}`);
       }
       const data = await res.json();
 
-      // Calculate totals with explicit numeric casting and parseFloat for safety
-      const incomeTotal = data
-        .filter(tx => tx.type === 'income')
-        .reduce((acc, tx) => acc + parseFloat(tx.amount || 0), 0);
+      // Sanitize data: Ensure amounts are numeric
+      const sanitizedData = data.map(tx => ({
+        ...tx,
+        amount: parseFloat(tx.amount || 0)
+      }));
 
-      const expenseTotal = data
+      // Calculate totals
+      const incomeTotal = sanitizedData
+        .filter(tx => tx.type === 'income')
+        .reduce((acc, tx) => acc + tx.amount, 0);
+
+      const expenseTotal = sanitizedData
         .filter(tx => tx.type === 'expense')
-        .reduce((acc, tx) => acc + parseFloat(tx.amount || 0), 0);
+        .reduce((acc, tx) => acc + tx.amount, 0);
 
       const openingValue = parseFloat(openingBal || 0);
 
@@ -67,10 +81,18 @@ function Reports() {
         expense: expenseTotal,
         closing: parseFloat((openingValue + incomeTotal - expenseTotal).toFixed(2))
       });
-      setTransactions(data);
+      setTransactions(sanitizedData);
+      setSearched(true);
     } catch (err) {
       console.error('Error fetching report:', err);
-      setError(err.message);
+      let msg = err.message;
+      if (err.name === 'AbortError') {
+        msg = 'Request timed out. Please check if the backend server is running and your database is connected.';
+      } else if (msg.includes('Failed to fetch')) {
+        msg = 'Could not connect to the backend. Please ensure the backend server is running on port 3001.';
+      }
+      setError(msg);
+      setSearched(false); // Hide report results if there's an error
     } finally {
       setLoading(false);
     }
@@ -89,14 +111,14 @@ function Reports() {
       exportData.push({
         'Section': 'SUMMARY',
         'Opening Balance': summary.opening,
-        'Total Income': summary.income,
-        'Expenditure': summary.expense,
+        'Total Receipts': summary.income,
+        'Total Payments': summary.expense,
         'Closing Balance': summary.closing
       });
       exportData.push({}); // Empty row
 
-      // Add Credit Side
-      exportData.push({ 'Section': 'CREDIT (INCOME)' });
+      // Add Debit Side
+      exportData.push({ 'Section': 'DEBIT (INCOME/RECEIPTS)' });
       transactions.filter(tx => tx.type === 'income').forEach(tx => {
         exportData.push({
           'Date': formatDate(tx.date),
@@ -105,10 +127,12 @@ function Reports() {
           'Amount': tx.amount
         });
       });
+      exportData.push({ 'Description': 'Total Receipts', 'Amount': summary.income });
+      exportData.push({ 'Description': 'Opening Balance', 'Amount': summary.opening });
       exportData.push({});
 
-      // Add Debit Side
-      exportData.push({ 'Section': 'DEBIT (EXPENSE)' });
+      // Add Credit Side
+      exportData.push({ 'Section': 'CREDIT (EXPENSE/PAYMENTS)' });
       transactions.filter(tx => tx.type === 'expense').forEach(tx => {
         exportData.push({
           'Date': formatDate(tx.date),
@@ -117,6 +141,8 @@ function Reports() {
           'Amount': tx.amount
         });
       });
+      exportData.push({ 'Description': 'Total Payments', 'Amount': summary.expense });
+      exportData.push({ 'Description': 'Closing Balance', 'Amount': summary.closing });
     } else {
       exportData = transactions.map(tx => ({
         'Date': formatDate(tx.date),
@@ -199,92 +225,113 @@ function Reports() {
 
       {searched && (
         <div className="reports-results">
+          {reportType === 'Daybook' && (
+            <div className="daybook-summary-grid no-print">
+              <div className="summary-card opening-bal">
+                <span className="card-label">Opening Balance</span>
+                <span className="card-value">{Number(summary.opening).toFixed(2)}</span>
+              </div>
+              <div className="summary-card total-receipts">
+                <span className="card-label">Total Receipts (Debit)</span>
+                <span className="card-value">{Number(summary.income).toFixed(2)}</span>
+              </div>
+              <div className="summary-card total-payments">
+                <span className="card-label">Total Payments (Credit)</span>
+                <span className="card-value">{Number(summary.expense).toFixed(2)}</span>
+              </div>
+              <div className="summary-card closing-bal">
+                <span className="card-label">Closing Balance</span>
+                <span className="card-value">{Number(summary.closing).toFixed(2)}</span>
+              </div>
+            </div>
+          )}
+
           {reportType === 'Daybook' ? (
             <div className="daybook-dual-view">
-              {(() => {
-                const incomeTx = transactions.filter(tx => tx.type === 'income');
-                const expenseTx = transactions.filter(tx => tx.type === 'expense');
-                const maxRows = Math.max(incomeTx.length, expenseTx.length);
-                const paddingRows = (count) => Array.from({ length: maxRows - count }).map((_, i) => (
-                  <tr key={`pad-${i}`} className="padding-row">
-                    <td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
-                  </tr>
-                ));
+              {transactions.length > 0 ? (
+                (() => {
+                  const incomeTx = transactions.filter(tx => tx.type === 'income');
+                  const expenseTx = transactions.filter(tx => tx.type === 'expense');
+                  const maxRows = Math.max(incomeTx.length, expenseTx.length);
+                  const paddingRows = (count) => Array.from({ length: maxRows - count }).map((_, i) => (
+                    <tr key={`pad-${i}`} className="padding-row">
+                      <td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
+                    </tr>
+                  ));
 
-                return (
-                  <>
-                    <div className="daybook-column credit-side">
-                      <h3>Credit (Income)</h3>
-                      <table className="reports-table daybook-table">
-                        <thead>
-                          <tr>
-                            <th>Date</th>
-                            <th>Name</th>
-                            <th>Type</th>
-                            <th>Amount</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {incomeTx.map(tx => (
-                            <tr key={tx.id}>
-                              <td>{formatDate(tx.date)}</td>
-                              <td>{tx.customerName || ''}</td>
-                              <td>{tx.type}</td>
-                              <td>${tx.amount.toFixed(2)}</td>
+                  return (
+                    <>
+                      <div className="daybook-column debit-side">
+                        <h3>Debit (Income/Receipts)</h3>
+                        <table className="reports-table daybook-table">
+                          <thead>
+                            <tr>
+                              <th>Date</th>
+                              <th>Name</th>
+                              <th>Type</th>
+                              <th>Amount</th>
                             </tr>
-                          ))}
-                          {paddingRows(incomeTx.length)}
-                          <tr className="balance-row">
-                            <td colSpan="3">Opening Balance</td>
-                            <td>${summary.opening.toFixed(2)}</td>
-                          </tr>
-                        </tbody>
-                        <tfoot>
-                          <tr className="total-row">
-                            <td colSpan="3">Total Credit</td>
-                            <td>${(Number(summary.opening) + Number(summary.income)).toFixed(2)}</td>
-                          </tr>
-                        </tfoot>
-                      </table>
-                    </div>
+                          </thead>
+                          <tbody>
+                            {incomeTx.map(tx => (
+                              <tr key={tx.id}>
+                                <td>{formatDate(tx.date)}</td>
+                                <td>{tx.customerName || ''}</td>
+                                <td>{tx.type}</td>
+                                <td>{Number(tx.amount).toFixed(2)}</td>
+                              </tr>
+                            ))}
+                            {paddingRows(incomeTx.length)}
+                            <tr className="subtotal-row">
+                              <td colSpan="3">Total Receipts</td>
+                              <td>{Number(summary.income).toFixed(2)}</td>
+                            </tr>
+                            <tr className="balance-row">
+                              <td colSpan="3">Opening Balance</td>
+                              <td>{Number(summary.opening).toFixed(2)}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
 
-                    <div className="daybook-column debit-side">
-                      <h3>Debit (Expense)</h3>
-                      <table className="reports-table daybook-table">
-                        <thead>
-                          <tr>
-                            <th>Date</th>
-                            <th>Name</th>
-                            <th>Type</th>
-                            <th>Amount</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {expenseTx.map(tx => (
-                            <tr key={tx.id}>
-                              <td>{formatDate(tx.date)}</td>
-                              <td>{tx.customerName || ''}</td>
-                              <td>{tx.type}</td>
-                              <td>${Number(tx.amount).toFixed(2)}</td>
+                      <div className="daybook-column credit-side">
+                        <h3>Credit (Expense/Payments)</h3>
+                        <table className="reports-table daybook-table">
+                          <thead>
+                            <tr>
+                              <th>Date</th>
+                              <th>Name</th>
+                              <th>Type</th>
+                              <th>Amount</th>
                             </tr>
-                          ))}
-                          {paddingRows(expenseTx.length)}
-                          <tr className="balance-row">
-                            <td colSpan="3">Closing Balance</td>
-                            <td>${Number(summary.closing).toFixed(2)}</td>
-                          </tr>
-                        </tbody>
-                        <tfoot>
-                          <tr className="total-row">
-                            <td colSpan="3">Total Debit</td>
-                            <td>${(Number(summary.expense) + Number(summary.closing)).toFixed(2)}</td>
-                          </tr>
-                        </tfoot>
-                      </table>
-                    </div>
-                  </>
-                );
-              })()}
+                          </thead>
+                          <tbody>
+                            {expenseTx.map(tx => (
+                              <tr key={tx.id}>
+                                <td>{formatDate(tx.date)}</td>
+                                <td>{tx.customerName || ''}</td>
+                                <td>{tx.type}</td>
+                                <td>{Number(tx.amount).toFixed(2)}</td>
+                              </tr>
+                            ))}
+                            {paddingRows(expenseTx.length)}
+                            <tr className="subtotal-row">
+                              <td colSpan="3">Total Payments</td>
+                              <td>{Number(summary.expense).toFixed(2)}</td>
+                            </tr>
+                            <tr className="balance-row">
+                              <td colSpan="3">Closing Balance</td>
+                              <td>{Number(summary.closing).toFixed(2)}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </>
+                  );
+                })()
+              ) : (
+                <div className="no-data">No transactions found for the Daybook for the selected period.</div>
+              )}
             </div>
           ) : (
             <>
@@ -315,7 +362,7 @@ function Reports() {
                         <td>{tx.customerEmail || ''}</td>
                         <td>{tx.customerPhone || ''}</td>
                         <td>{tx.description}</td>
-                        <td>${tx.amount.toFixed(2)}</td>
+                        <td>{Number(tx.amount || 0).toFixed(2)}</td>
                       </tr>
                     ))}
                   </tbody>

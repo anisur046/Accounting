@@ -51,6 +51,7 @@ app.delete('/api/users/:id', async (req, res) => {
 // Transaction CRUD
 app.get('/api/transactions/balance', async (req, res) => {
   const { toDate } = req.query;
+  console.log('GET /api/transactions/balance - toDate:', toDate);
   const { Op } = require('sequelize');
   try {
     const end = new Date(toDate);
@@ -82,7 +83,7 @@ app.get('/api/transactions/balance', async (req, res) => {
 
 app.get('/api/transactions/report', async (req, res) => {
   const { fromDate, toDate } = req.query;
-  console.log('Fetching report for range:', fromDate, 'to', toDate);
+  console.log('GET /api/transactions/report - fromDate:', fromDate, 'toDate:', toDate);
   const { Op } = require('sequelize');
   try {
     const start = new Date(fromDate);
@@ -285,8 +286,12 @@ app.post('/api/reset-password', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3001;
-sequelize.sync({ alter: true }).then(() => {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log('Syncing database in background...');
+  sequelize.sync().then(() => {
+    console.log('Database synced successfully.');
+  }).catch(err => {
+    console.error('Failed to sync database:', err);
   });
 });

@@ -7,6 +7,7 @@ function Transactions() {
   const [customers, setCustomers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [showResults, setShowResults] = useState(false);
+  const today = new Date().toISOString().split('T')[0];
   const [form, setForm] = useState({
     amount: '',
     type: 'income',
@@ -14,7 +15,8 @@ function Transactions() {
     customerName: '',
     customerEmail: '',
     customerPhone: '',
-    customerAddress: ''
+    customerAddress: '',
+    date: today
   });
 
   useEffect(() => {
@@ -65,7 +67,8 @@ function Transactions() {
           customerName: '',
           customerEmail: '',
           customerPhone: '',
-          customerAddress: ''
+          customerAddress: '',
+          date: today
         });
         setSearchTerm('');
       });
@@ -107,13 +110,28 @@ function Transactions() {
           <input name="customerAddress" placeholder="Customer Address" value={form.customerAddress} onChange={handleChange} readOnly />
 
           <div className="transaction-row">
-            <input name="amount" placeholder="Amount" value={form.amount} onChange={handleChange} required />
-            <select name="type" value={form.type} onChange={handleChange}>
-              <option value="income">Income</option>
-              <option value="expense">Expense</option>
-            </select>
+            <div className="form-group-inline">
+              <label>Date</label>
+              <input type="date" name="date" value={form.date} onChange={handleChange} required />
+            </div>
+            <div className="form-group-inline">
+              <label>Amount</label>
+              <input name="amount" placeholder="Amount" value={form.amount} onChange={handleChange} required />
+            </div>
           </div>
-          <input name="description" placeholder="Description" value={form.description} onChange={handleChange} />
+          <div className="transaction-row">
+            <div className="form-group-inline">
+              <label>Type</label>
+              <select name="type" value={form.type} onChange={handleChange}>
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+              </select>
+            </div>
+            <div className="form-group-inline">
+              <label>Description</label>
+              <input name="description" placeholder="Description" value={form.description} onChange={handleChange} />
+            </div>
+          </div>
 
           <button type="submit">Add Transaction</button>
         </form>

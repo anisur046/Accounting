@@ -14,7 +14,7 @@
 .transactions-container {
   background: rgba(255, 255, 255, 0.95);
   border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
   padding: 2rem;
   max-width: 500px;
   width: 100%;
@@ -48,6 +48,7 @@
   cursor: pointer;
   transition: background 0.2s;
 }
+
 .transactions-form button:hover {
   background: #1a242f;
 }
@@ -57,6 +58,7 @@
   padding: 0;
   margin: 0;
 }
+
 .transactions-list li {
   padding: 0.75rem 0.5rem;
   border-bottom: 1px solid #e0e0e0;
@@ -68,6 +70,7 @@
     padding: 1rem;
     margin-top: 1rem;
   }
+
   .transactions-form input,
   .transactions-form select,
   .transactions-form button {
@@ -75,6 +78,7 @@
     padding: 0.6rem;
   }
 }
+
 .search-container {
   position: relative;
 }
@@ -90,7 +94,7 @@
   max-height: 200px;
   overflow-y: auto;
   z-index: 10;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   margin-top: 4px;
 }
 
@@ -107,6 +111,19 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
+}
+
+.form-group-inline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.form-group-inline label {
+  font-size: 0.85rem;
+  color: #666;
+  font-weight: 600;
+  margin-left: 2px;
 }
 
 @media (max-width: 600px) {
