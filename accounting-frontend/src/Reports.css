@@ -1,16 +1,23 @@
 /* Reports Page Styles */
 .reports-container {
-    max-width: 1000px;
+    max-width: 1200px;
     margin: 2rem auto;
     padding: 2rem;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+    font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .reports-header {
     margin-bottom: 2rem;
     text-align: center;
+}
+
+.reports-header h2 {
+    color: #2c3e50;
+    font-size: 1.8rem;
+    font-weight: 700;
 }
 
 .report-selector {
@@ -21,63 +28,450 @@
     gap: 10px;
 }
 
+.report-selector label {
+    font-weight: 600;
+    color: #4b5563;
+}
+
 .report-selector select {
-    padding: 8px 12px;
-    border-radius: 6px;
-    border: 1px solid #ddd;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
     font-size: 1rem;
-    background-color: #f8f9fa;
+    background-color: #f9fafb;
+    color: #1f2937;
     cursor: pointer;
+    transition: all 0.2s ease;
 }
 
-.reports-results h3 {
+.report-selector select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* Main Navigation Tabs */
+.reports-main-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    border-bottom: 2px solid #e5e7eb;
+    margin-bottom: 2.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.main-tab-btn {
+    padding: 12px 24px;
+    border: none;
+    background: transparent;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #6b7280;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s ease;
+}
+
+.main-tab-btn:hover {
+    color: #1f2937;
+}
+
+.main-tab-btn.active {
+    color: #3b82f6;
+}
+
+.main-tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background-color: #3b82f6;
+    border-radius: 2px;
+}
+
+/* Premium Selection Fields for Co-op reports */
+.coop-selection-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 1.5rem;
+    background: #f8fafc;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 2rem;
+}
+
+.form-group-premium {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    min-width: 250px;
+}
+
+.form-group-premium label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-group-premium select {
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    font-size: 0.95rem;
+    color: #1e293b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.form-group-premium select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.actions-premium {
+    display: flex;
+    gap: 12px;
+}
+
+.export-btn-premium,
+.print-btn-premium {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.export-btn-premium {
+    background-color: #10b981;
+    color: #ffffff;
+}
+
+.export-btn-premium:hover:not(:disabled) {
+    background-color: #059669;
+    transform: translateY(-1px);
+}
+
+.print-btn-premium {
+    background-color: #3b82f6;
+    color: #ffffff;
+}
+
+.print-btn-premium:hover:not(:disabled) {
+    background-color: #2563eb;
+    transform: translateY(-1px);
+}
+
+.export-btn-premium:disabled,
+.print-btn-premium:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Co-op Sub-Tabs menu */
+.coop-sub-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 2rem;
+    background: #f1f5f9;
+    padding: 6px;
+    border-radius: 10px;
+    flex-wrap: wrap;
+}
+
+.sub-tab-btn {
+    padding: 10px 16px;
+    border: none;
+    background: transparent;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #475569;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex: 1;
+    min-width: 140px;
+    text-align: center;
+}
+
+.sub-tab-btn:hover {
+    color: #0f172a;
+    background: rgba(255,255,255,0.4);
+}
+
+.sub-tab-btn.active {
+    background: #ffffff;
+    color: #0f172a;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+/* Co-op Statements Design */
+.coop-report-print {
+    padding: 2.5rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+}
+
+.statement-title-block {
+    text-align: center;
+    padding: 20px;
+    margin-bottom: 2rem;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.statement-title-block.yellow-header {
+    background: #ffff00;
+    color: #000000;
+    border: 2px solid #000000;
+}
+
+.statement-title-block.yellow-header h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin: 0 0 6px 0;
+    letter-spacing: 0.5px;
+}
+
+.statement-title-block.yellow-header p {
+    margin: 4px 0;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.statement-title-block.yellow-header .statement-name {
+    margin: 12px 0 0 0;
+    font-size: 1.35rem;
+    font-weight: 800;
+    text-decoration: underline;
+}
+
+/* Co-op Tables */
+.coop-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+}
+
+.coop-table th,
+.coop-table td {
+    padding: 10px 12px;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    border: 1px solid #cbd5e1;
+}
+
+.coop-table th {
+    background: #f8fafc;
+    font-weight: 700;
+    color: #1e293b;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+}
+
+.coop-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.coop-table td input {
+    border: none;
+    border-bottom: 1px dotted #cbd5e1;
+    background: transparent;
+    width: 100%;
+    text-align: right;
+    padding: 4px;
+}
+
+.coop-table td input:focus {
+    outline: none;
+    border-bottom-color: #3b82f6;
+    background: #f1f5f9;
+}
+
+.coop-grand-total td {
+    font-weight: 800;
+    background: #f1f5f9 !important;
+    border-top: 2px solid #0f172a;
+    border-bottom: 2px double #0f172a;
+    font-size: 0.9rem;
+}
+
+.main-category-row td {
+    font-weight: 700;
+    background: #f8fafc;
+}
+
+.sub-item-row td {
+    color: #334155;
+}
+
+.computation-row td {
+    color: #475569;
+}
+
+.computation-row.highlight-calc td {
+    background: #fdfdf2;
+}
+
+/* Signatures Block */
+.signatures-block {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 3.5rem;
+    margin-bottom: 2rem;
+    gap: 20px;
+}
+
+.sig-item {
+    flex: 1;
+    text-align: center;
+    border-top: 1px dotted #000000;
+    padding-top: 10px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: #0f172a;
+    text-transform: uppercase;
+}
+
+.audit-sig-block {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 2rem;
+}
+
+.auditor-sig {
+    border-top: 1px dotted #000000;
+    padding-top: 10px;
+    width: 250px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: #0f172a;
+    text-transform: uppercase;
+}
+
+/* Auditor Remarks */
+.auditor-remarks {
+    margin-top: 3rem;
+    border: 2px solid #000000;
+    padding: 1.5rem;
+    border-radius: 6px;
+    background: #ffffff;
+    position: relative;
+}
+
+.auditor-remarks p {
+    font-style: italic;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    margin: 0 0 20px 0;
+    color: #0f172a;
+}
+
+.auditor-remarks .auditor-sig {
+    margin-left: auto;
+}
+
+/* Trial Balance subtab switcher */
+.tb-sub-switcher {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 1.5rem;
+}
+
+.tb-sub-btn {
+    padding: 8px 16px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #475569;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tb-sub-btn:hover {
+    background: #f1f5f9;
+}
+
+.tb-sub-btn.active {
+    background: #475569;
+    color: #ffffff;
+    border-color: #475569;
+}
+
+.tb-section-title {
+    text-align: center;
+    color: #0f172a;
+    font-weight: 700;
+    font-size: 1.1rem;
     margin-bottom: 1rem;
-    color: #2c3e50;
-    border-bottom: 2px solid #3498db;
-    display: inline-block;
-    padding-bottom: 5px;
+    text-decoration: underline;
 }
 
+/* original styles - transactions form */
 .reports-form {
     display: flex;
-    gap: 1rem;
+    gap: 1.25rem;
     align-items: flex-end;
     justify-content: center;
-    margin-bottom: 2.5rem;
+    margin-bottom: 2rem;
     flex-wrap: wrap;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 6px;
 }
 
 .form-group label {
     font-weight: 600;
-    color: #444;
+    font-size: 0.9rem;
+    color: #4b5563;
 }
 
 .reports-form input {
-    padding: 0.75rem;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 1rem;
+    padding: 10px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    color: #1f2937;
+    background: #ffffff;
 }
 
 .reports-form button {
-    padding: 0.75rem 1.5rem;
-    background: #34495e;
-    color: #fff;
+    padding: 11px 24px;
+    background: #2563eb;
+    color: #ffffff;
     border: none;
-    border-radius: 6px;
-    font-size: 1rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: background 0.2s ease;
 }
 
 .reports-form button:hover {
-    background: #2c3e50;
+    background: #1d4ed8;
 }
 
 .reports-table {
@@ -88,333 +482,260 @@
 
 .reports-table th,
 .reports-table td {
-    text-align: left;
-    padding: 0.75rem 0.5rem;
-    border-bottom: 1px solid #eee;
+    padding: 12px;
+    border-bottom: 1px solid #e5e7eb;
     font-size: 0.9rem;
 }
 
 .reports-table th {
-    background: #f8f9fa;
+    background: #f9fafb;
     font-weight: 600;
-    color: #333;
-}
-
-.reports-table tr:hover {
-    background: #f9f9f9;
+    color: #374151;
 }
 
 .type-badge {
     padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.85rem;
-    font-weight: 600;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
     text-transform: uppercase;
 }
 
 .type-income {
-    background: #e8f5e9;
-    color: #2e7d32;
+    background: #d1fae5;
+    color: #065f46;
 }
 
 .type-expense {
-    background: #ffebee;
-    color: #c62828;
+    background: #fee2e2;
+    color: #991b1b;
 }
 
 .no-data {
     text-align: center;
-    padding: 2rem;
-    color: #666;
+    padding: 3rem;
+    color: #6b7280;
     font-style: italic;
+    background: #f9fafb;
+    border-radius: 12px;
+    border: 1px dashed #cbd5e1;
 }
 
 .daybook-dual-view {
     display: flex;
-    gap: 2rem;
-    align-items: flex-start;
-    margin-top: 1rem;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
 }
 
 .daybook-column {
     flex: 1;
     min-width: 0;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02);
 }
 
 .daybook-column h3 {
     text-align: center;
-    background: #f8f9fa;
-    padding: 10px;
-    border-radius: 8px 8px 0 0;
-    margin-bottom: 0;
-    font-size: 1.1rem;
-    border: 1px solid #eee;
-    border-bottom: none;
-}
-
-.padding-row td {
-    border: none !important;
-    background: transparent !important;
+    background: #f3f4f6;
+    padding: 12px;
+    margin: 0;
+    font-size: 1rem;
+    color: #111827;
+    border-bottom: 1px solid #e5e7eb;
+    font-weight: 700;
 }
 
 .daybook-table {
     margin-top: 0 !important;
-    height: 100%;
-    /* Ensure tables try to match */
-    table-layout: fixed;
-    /* Keep columns consistent */
-}
-
-.daybook-table tbody {
-    min-height: 200px;
-}
-
-.daybook-table th,
-.daybook-table td {
-    padding: 0.6rem 0.4rem !important;
-    font-size: 0.85rem !important;
 }
 
 .balance-row td {
-    background: #fffdf0;
-    font-weight: 600;
-    color: #856404;
-    border-top: 2px solid #ffeeba;
-}
-
-.total-row td {
-    background: #f1f8ff;
+    background: #fef3c7 !important;
     font-weight: 700;
-    color: #0366d6;
-    border-top: 2px solid #c8e1ff;
-    font-size: 0.95rem !important;
+    color: #92400e;
 }
 
 .subtotal-row td {
-    background: #fdfdfe;
-    font-weight: 600;
-    color: #444;
-    border-top: 1px double #ddd;
-    border-bottom: 1px double #ddd;
-    font-style: italic;
-}
-
-.summary-dashboard {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
-    margin: 1.5rem 0 2.5rem 0;
-}
-
-.summary-card {
-    padding: 1.5rem;
-    border-radius: 12px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    transition: transform 0.2s;
-}
-
-.summary-card:hover {
-    transform: translateY(-3px);
-}
-
-.summary-label {
-    font-size: 0.9rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    opacity: 0.9;
-}
-
-.summary-value {
-    font-size: 1.5rem;
+    background: #fafafa;
     font-weight: 700;
+    font-style: italic;
+    border-top: 2px solid #cbd5e1;
+    border-bottom: 2px solid #cbd5e1;
 }
 
-.summary-card.gold {
-    background: #fff9db;
-    color: #856404;
-    border: 1px solid #ffeeba;
-}
-
-.summary-card.green {
-    background: #e8f5e9;
-    color: #2e7d32;
-    border: 1px solid #c8e6c9;
-}
-
-.summary-card.red {
-    background: #ffebee;
-    color: #c62828;
-    border: 1px solid #ffcdd2;
-}
-
-.summary-card.blue {
-    background: #e3f2fd;
-    color: #1565c0;
-    border: 1px solid #bbdefb;
-}
-
-.reports-actions {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin: 1.5rem 0;
-}
-
-.export-btn,
-.print-btn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.export-btn {
-    background-color: #27ae60;
-    color: white;
-}
-
-.export-btn:hover {
-    background-color: #219150;
-    transform: translateY(-2px);
-}
-
-.print-btn {
-    background-color: #34495e;
-    color: white;
-}
-
-.print-btn:hover {
-    background-color: #2c3e50;
-    transform: translateY(-2px);
-}
-
-@media print {
-
-    .no-print,
-    .reports-header,
-    .reports-filter-section,
-    .reports-actions,
-    .navbar,
-    nav {
-        display: none !important;
-    }
-
-    body {
-        background: white !important;
-        margin: 0;
-        padding: 20px;
-    }
-
-    .reports-container {
-        padding: 0;
-        box-shadow: none;
-    }
-
-    .reports-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .reports-table th,
-    .reports-table td {
-        border: 1px solid #ddd !important;
-        color: black !important;
-    }
-
-    .daybook-dual-view {
-        flex-direction: row !important;
-        gap: 1rem;
-    }
-
-    h3 {
-        color: black !important;
-        border-bottom: 2px solid black !important;
-    }
-}
-
-@media (max-width: 600px) {
-    .summary-dashboard {
-        grid-template-columns: 1fr 1fr;
-        gap: 0.8rem;
-    }
-
-    .summary-value {
-        font-size: 1.2rem;
-    }
-}
-
-@media (max-width: 768px) {
-    .reports-form {
-        flex-direction: column;
-        align-items: stretch;
-    }
-}
-
-/* Daybook Summary Cards */
 .daybook-summary-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
     margin-bottom: 2rem;
 }
 
 .summary-card {
     padding: 1.25rem;
     border-radius: 12px;
-    background: white;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
-    border-top: 4px solid #22313f;
-    transition: transform 0.2s, box-shadow 0.2s;
+    gap: 6px;
+    border-top: 4px solid #111827;
 }
 
-.summary-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-}
+.summary-card.opening-bal { border-top-color: #3b82f6; }
+.summary-card.total-receipts { border-top-color: #10b981; }
+.summary-card.total-payments { border-top-color: #f59e0b; }
+.summary-card.closing-bal { border-top-color: #8b5cf6; }
 
 .summary-card .card-label {
-    font-size: 0.85rem;
-    color: #666;
+    font-size: 0.8rem;
+    color: #6b7280;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
 }
 
 .summary-card .card-value {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     font-weight: 700;
-    color: #22313f;
+    color: #111827;
 }
 
-.summary-card.opening-bal {
-    border-top-color: #3498db;
+.loading-card,
+.empty-state-premium {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 2px dashed #cbd5e1;
+    margin: 2rem 0;
+    color: #475569;
 }
 
-.summary-card.total-receipts {
-    border-top-color: #27ae60;
+.empty-state-premium h3 {
+    margin-bottom: 0.5rem;
+    color: #1e293b;
 }
 
-.summary-card.total-payments {
-    border-top-color: #e67e22;
+.error-card-premium {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    margin: 1.5rem 0;
+    font-weight: 600;
 }
 
-.summary-card.closing-bal {
-    border-top-color: #9b59b6;
+/* Printing Specific Layout Styles */
+@media print {
+    .no-print,
+    .reports-main-tabs,
+    .coop-selection-row,
+    .coop-sub-tabs,
+    .tb-sub-switcher,
+    .navbar,
+    nav,
+    hr,
+    button {
+        display: none !important;
+    }
+
+    body {
+        background: #ffffff !important;
+        margin: 0;
+        padding: 0;
+        color: #000000 !important;
+    }
+
+    .reports-container {
+        padding: 0;
+        margin: 0;
+        box-shadow: none;
+        max-width: 100%;
+    }
+
+    .coop-report-print {
+        padding: 0;
+        border: none;
+        box-shadow: none;
+    }
+
+    .statement-title-block.yellow-header {
+        background: #ffff00 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        border: 2px solid #000000 !important;
+        color: #000000 !important;
+    }
+
+    .coop-table th {
+        background: #f1f5f9 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        color: #000000 !important;
+    }
+
+    .coop-table,
+    .coop-table th,
+    .coop-table td {
+        border: 1px solid #000000 !important;
+    }
+
+    .coop-grand-total td {
+        background: #f1f5f9 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .signatures-block {
+        margin-top: 5rem;
+    }
+
+    .auditor-remarks {
+        border: 2px solid #000000 !important;
+        page-break-inside: avoid;
+    }
 }
 
-@media (max-width: 600px) {
-    .daybook-summary-grid {
-        grid-template-columns: 1fr;
+/* Wide Table Scrollable Wrapper */
+.coop-statements-display {
+    overflow-x: auto;
+    width: 100%;
+}
+
+.coop-report-print {
+    min-width: 950px; /* Force minimum width on screen to ensure proper ledger table layout */
+}
+
+/* NPA Table specific scaling for 15 columns */
+.npa-table {
+    table-layout: auto;
+}
+
+.npa-table th,
+.npa-table td {
+    padding: 6px 4px !important;
+    font-size: 0.72rem !important;
+}
+
+@media print {
+    .coop-statements-display {
+        overflow: visible !important;
+    }
+    
+    .coop-report-print {
+        min-width: 100% !important;
+        border: none !important;
+        padding: 0 !important;
+    }
+
+    .npa-table th,
+    .npa-table td {
+        font-size: 0.65rem !important; /* Extra small on paper to fit portrait width */
+        padding: 4px 2px !important;
     }
 }

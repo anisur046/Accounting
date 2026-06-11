@@ -17,6 +17,7 @@ function Navbar({ onLogout }) {
         <li><Link to="/customers">Customers</Link></li>
         <li><Link to="/transactions">Transactions</Link></li>
         <li><Link to="/reports">Reports</Link></li>
+        <li><Link to="/cash-account">Cash Account PDF</Link></li>
         <li><button onClick={onLogout} className="logout-btn">Logout</button></li>
       </ul>
       <style>{`

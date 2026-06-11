@@ -1,12 +1,14 @@
 const { DataTypes } = require('sequelize');
-const { sequelize } = require('./index');
 
-module.exports = (sequelize, DataTypes) => {
+module.exports = (sequelize) => {
   const Customer = sequelize.define('Customer', {
-    name: { type: DataTypes.STRING, allowNull: false },
-    email: { type: DataTypes.STRING, allowNull: false, unique: true },
-    phone: { type: DataTypes.STRING, allowNull: true },
-    address: { type: DataTypes.STRING, allowNull: true }
+    glCode: { type: DataTypes.STRING, allowNull: false, unique: true },
+    glHead: { type: DataTypes.STRING, allowNull: false },
+    openingBalance: { type: DataTypes.DOUBLE, defaultValue: 0 },
+    credit: { type: DataTypes.DOUBLE, defaultValue: 0 },
+    debit: { type: DataTypes.DOUBLE, defaultValue: 0 },
+    closingBalance: { type: DataTypes.DOUBLE, defaultValue: 0 },
+    detailListBalance: { type: DataTypes.DOUBLE, defaultValue: 0 }
   });
   return Customer;
 };

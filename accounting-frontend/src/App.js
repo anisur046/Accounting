@@ -3,11 +3,12 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './Home';
 import Users from './Users';
 import Transactions from './Transactions';
-import Reports from './Reports';
 import Navbar from './Navbar';
 import Login from './Login';
 import ResetPassword from './ResetPassword';
 import Customer from './Customer';
+import CashAccountUpload from './CashAccountUpload';
+import Reports from './Reports';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -46,9 +47,10 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/users" element={<Users />} />
           <Route path="/transactions" element={<Transactions />} />
-          <Route path="/reports" element={<Reports />} />
+          <Route path="/cash-account" element={<CashAccountUpload />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/customers" element={<Customer />} />
+          <Route path="/reports" element={<Reports />} />
         </Routes>
       </div>
     </Router>
