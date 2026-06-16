@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './Home';
 import Users from './Users';
-import Transactions from './Transactions';
 import Navbar from './Navbar';
 import Login from './Login';
 import ResetPassword from './ResetPassword';
@@ -46,7 +45,6 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/users" element={<Users />} />
-          <Route path="/transactions" element={<Transactions />} />
           <Route path="/cash-account" element={<CashAccountUpload />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/customers" element={<Customer />} />

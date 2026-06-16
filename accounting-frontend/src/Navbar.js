@@ -15,7 +15,6 @@ function Navbar({ onLogout }) {
       <ul className={`navbar-links${open ? ' open' : ''}`} onClick={() => setOpen(false)}>
         <li><Link to="/">Home</Link></li>
         <li><Link to="/customers">Customers</Link></li>
-        <li><Link to="/transactions">Transactions</Link></li>
         <li><Link to="/reports">Reports</Link></li>
         <li><Link to="/cash-account">Cash Account PDF</Link></li>
         <li><button onClick={onLogout} className="logout-btn">Logout</button></li>

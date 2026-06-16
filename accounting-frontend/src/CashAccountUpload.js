@@ -1138,7 +1138,21 @@ function CashAccountUpload() {
     const totalReceipts = aeCreditSum + liCreditSum;
     const totalPayments = aeDebitSum + liDebitSum;
 
-    const tbLines = records.map(r => {
+    const standardizeLoanName = (name) => {
+      if (!name) return '';
+      let cleaned = name.trim();
+      cleaned = cleaned.replace(/SELF-\s+HELP/gi, 'SELF-HELP');
+      cleaned = cleaned.replace(/SELF\s+HELP/gi, 'SELF-HELP');
+      cleaned = cleaned.replace(/\s*-\s*CURRENT\s*$/i, '');
+      cleaned = cleaned.replace(/\s*-\s*OVERDUE\s*$/i, '');
+      cleaned = cleaned.replace(/\s*\(\s*CURRENT\s*\)\s*$/i, '');
+      cleaned = cleaned.replace(/\s*\(\s*OVERDUE\s*\)\s*$/i, '');
+      cleaned = cleaned.replace(/\s*[-\/]\s*$/g, '');
+      cleaned = cleaned.replace(/\s+/g, ' ');
+      return cleaned.trim();
+    };
+
+    const normalLines = records.map(r => {
       const ob = r.openingBalance || 0;
       const originalOb = r.originalOpeningBalance !== undefined ? r.originalOpeningBalance : ob;
       const isDebit = isDebitNormal(r.type);
@@ -1151,12 +1165,64 @@ function CashAccountUpload() {
         code: r.code,
         head: r.head,
         openingBalance: ob,
-        totalDebit: r.totalDebit,
-        totalCredit: r.totalCredit,
+        totalDebit: r.totalDebit || 0,
+        totalCredit: r.totalCredit || 0,
         endingBalance: endingVal,
         type: r.type,
-        debit: isDebit && endingVal > 0 ? endingVal : (!isDebit && endingVal < 0 ? -endingVal : 0),
-        credit: !isDebit && endingVal > 0 ? endingVal : (isDebit && endingVal < 0 ? -endingVal : 0),
+      };
+    });
+
+    const consolidatedNormalLines = [];
+    const loanGroups = {};
+    
+    normalLines.forEach(l => {
+      if (l.type === 'Loan and Advance') {
+        const stdHead = standardizeLoanName(l.head);
+        if (!loanGroups[stdHead]) {
+          loanGroups[stdHead] = {
+            codes: [],
+            head: stdHead,
+            openingBalance: 0,
+            totalDebit: 0,
+            totalCredit: 0,
+            endingBalance: 0,
+            type: 'Loan and Advance'
+          };
+        }
+        loanGroups[stdHead].codes.push(l.code);
+        loanGroups[stdHead].openingBalance += l.openingBalance;
+        loanGroups[stdHead].totalDebit += l.totalDebit;
+        loanGroups[stdHead].totalCredit += l.totalCredit;
+        loanGroups[stdHead].endingBalance += l.endingBalance;
+      } else {
+        consolidatedNormalLines.push(l);
+      }
+    });
+
+    Object.values(loanGroups).forEach(g => {
+      const uniqueCodes = [...new Set(g.codes)].sort();
+      let combinedCode = uniqueCodes.join(' / ');
+      if (uniqueCodes.length === 2 && uniqueCodes[0].substring(0, 4) === uniqueCodes[1].substring(0, 4)) {
+        const diffPart = uniqueCodes[1].substring(4);
+        combinedCode = `${uniqueCodes[0]}/${diffPart}`;
+      }
+      consolidatedNormalLines.push({
+        code: combinedCode,
+        head: g.head,
+        openingBalance: Math.round(g.openingBalance * 100) / 100,
+        totalDebit: Math.round(g.totalDebit * 100) / 100,
+        totalCredit: Math.round(g.totalCredit * 100) / 100,
+        endingBalance: Math.round(g.endingBalance * 100) / 100,
+        type: g.type
+      });
+    });
+
+    const tbLines = consolidatedNormalLines.map(l => {
+      const isDebit = isDebitNormal(l.type);
+      return {
+        ...l,
+        debit: isDebit && l.endingBalance > 0 ? l.endingBalance : (!isDebit && l.endingBalance < 0 ? -l.endingBalance : 0),
+        credit: !isDebit && l.endingBalance > 0 ? l.endingBalance : (isDebit && l.endingBalance < 0 ? -l.endingBalance : 0),
       };
     });
 
@@ -1457,21 +1523,59 @@ function CashAccountUpload() {
 
     // Filter sub-items for schedules
     const getSubitems = (category) => {
-      return records
-        .filter(r => r.type === category)
-        .map(r => {
+      const filtered = records.filter(r => r.type === category);
+      if (category === 'Loan and Advance') {
+        const groups = {};
+        filtered.forEach(r => {
+          const stdHead = standardizeLoanName(r.head);
+          if (!groups[stdHead]) {
+            groups[stdHead] = {
+              codes: [],
+              head: stdHead,
+              cy: 0,
+              py: 0,
+              detailListBalance: 0
+            };
+          }
           const ob = r.openingBalance || 0;
           const net = r.totalDebit - r.totalCredit;
-          const isDebit = isDebitNormal(category);
-          const cyVal = isDebit ? ob + net : ob - net;
+          const cyVal = ob + net;
+          groups[stdHead].codes.push(r.code);
+          groups[stdHead].cy += cyVal;
+          groups[stdHead].py += ob;
+          groups[stdHead].detailListBalance += r.detailListBalance !== undefined ? r.detailListBalance : cyVal;
+        });
+
+        return Object.values(groups).map(g => {
+          const uniqueCodes = [...new Set(g.codes)].sort();
+          let combinedCode = uniqueCodes.join(' / ');
+          if (uniqueCodes.length === 2 && uniqueCodes[0].substring(0, 4) === uniqueCodes[1].substring(0, 4)) {
+            const diffPart = uniqueCodes[1].substring(4);
+            combinedCode = `${uniqueCodes[0]}/${diffPart}`;
+          }
           return {
-            code: r.code,
-            head: r.head,
-            cy: cyVal,
-            py: ob,
-            detailListBalance: r.detailListBalance !== undefined ? r.detailListBalance : cyVal
+            code: combinedCode,
+            head: g.head,
+            cy: Math.round(g.cy * 100) / 100,
+            py: Math.round(g.py * 100) / 100,
+            detailListBalance: Math.round(g.detailListBalance * 100) / 100
           };
         });
+      }
+
+      return filtered.map(r => {
+        const ob = r.openingBalance || 0;
+        const net = r.totalDebit - r.totalCredit;
+        const isDebit = isDebitNormal(category);
+        const cyVal = isDebit ? ob + net : ob - net;
+        return {
+          code: r.code,
+          head: r.head,
+          cy: cyVal,
+          py: ob,
+          detailListBalance: r.detailListBalance !== undefined ? r.detailListBalance : cyVal
+        };
+      });
     };
 
     return {
@@ -1596,7 +1700,7 @@ function CashAccountUpload() {
     const staffWelfareVal = getExpenseVal('staff welfare');
     const memberWelfareVal = getExpenseVal('member welfare');
     const buildingFundVal = getExpenseVal('building');
-    const provisionNpaVal = getExpenseVal('provision for npa');
+    const provisionNpaVal = Math.round(npaRows.reduce((acc, r) => acc + (r.substandard * 0.10) + (r.d1 * 0.20) + (r.d2 * 0.30) + (r.d3 * 1.00), 0) * 100) / 100;
     const provisionStandardVal = getExpenseVal('provision for standard');
     const overdueInterestVal = getExpenseVal('provision for o.d');
     const auditFeesVal = getExpenseVal('audit');
@@ -1745,7 +1849,7 @@ function CashAccountUpload() {
       sheet2Data.push(['', `  ${index + 1}. ${item.head}`, item.cy, '', '']);
     });
     const totalLoansCy = reports.subitems.loans.reduce((acc, l) => acc + l.cy, 0);
-    const npaProvisionVal = records.filter(r => r.type === 'Provisions' && r.head.toLowerCase().includes('npa')).reduce((acc, r) => acc + (r.openingBalance + r.totalCredit - r.totalDebit), 0);
+    const npaProvisionVal = Math.round(npaRows.reduce((acc, r) => acc + (r.substandard * 0.10) + (r.d1 * 0.20) + (r.d2 * 0.30) + (r.d3 * 1.00), 0) * 100) / 100;
     sheet2Data.push(['', '  (a) TOTAL', totalLoansCy, '', '']);
     sheet2Data.push(['', '  (b) LESS: PROVISION FOR NPA', npaProvisionVal, '', '']);
     sheet2Data.push(['', '  (c) LOANS AND ADVANCES NET OF PROVISIONS', totalLoansCy - npaProvisionVal, '', '']);
@@ -2942,7 +3046,7 @@ function CashAccountUpload() {
                   {/* Net computations for loans */}
                   {(() => {
                     const totalLoansCy = reports.subitems.loans.reduce((acc, l) => acc + l.cy, 0);
-                    const npaProvisionVal = records.filter(r => r.type === 'Provisions' && r.head.toLowerCase().includes('npa')).reduce((acc, r) => acc + (r.openingBalance + r.totalCredit - r.totalDebit), 0);
+                    const npaProvisionVal = Math.round(npaRows.reduce((acc, r) => acc + (r.substandard * 0.10) + (r.d1 * 0.20) + (r.d2 * 0.30) + (r.d3 * 1.00), 0) * 100) / 100;
                     return (
                       <>
                         <tr className="computation-row">
@@ -3798,7 +3902,7 @@ function CashAccountUpload() {
                   </thead>
                   <tbody>
                     <tr className="main-category-row">
-                      <td style={{ fontWeight: 'bold' }}>TO, INT. PAID & DUE FOR 2022-23</td>
+                      <td style={{ fontWeight: 'bold' }}>TO, INT. PAID & DUE FOR {uploadYear || '2022-23'}</td>
                       <td></td>
                       <td></td>
                       <td></td>
@@ -4021,7 +4125,7 @@ function CashAccountUpload() {
                   </thead>
                   <tbody>
                     <tr className="main-category-row">
-                      <td style={{ fontWeight: 'bold' }}>BY, INT. RECEIVED & RECEIVABLE FOR 2022-23</td>
+                      <td style={{ fontWeight: 'bold' }}>BY, INT. RECEIVED & RECEIVABLE FOR {uploadYear || '2022-23'}</td>
                       <td></td>
                       <td></td>
                       <td></td>
@@ -4297,7 +4401,12 @@ function CashAccountUpload() {
                 </thead>
                 <tbody>
                   <tr className="main-category-row"><td colSpan="4">DEPOSIT</td></tr>
-                  {reports.subitems.deposits.map((item, idx) => (
+                  {reports.subitems.deposits
+                    .filter(item => {
+                      const h = (item.head || '').toUpperCase();
+                      return !h.includes('SAHINUR') && !h.includes('MAMUN') && !h.includes('AFIRUL');
+                    })
+                    .map((item, idx) => (
                     <tr key={idx} className="sub-item-row">
                       <td style={{ paddingLeft: '2rem' }}>{item.head}</td>
                       <td style={{ textAlign: 'right' }}>{Number(item.cy).toFixed(2)}</td>
@@ -4313,7 +4422,12 @@ function CashAccountUpload() {
                   ))}
 
                   <tr className="main-category-row"><td colSpan="4">BORROWINGS</td></tr>
-                  {reports.subitems.borrowings.map((item, idx) => (
+                  {reports.subitems.borrowings
+                    .filter(item => {
+                      const h = (item.head || '').toUpperCase();
+                      return !h.includes('SAHINUR') && !h.includes('MAMUN') && !h.includes('AFIRUL');
+                    })
+                    .map((item, idx) => (
                     <tr key={idx} className="sub-item-row">
                       <td style={{ paddingLeft: '2rem' }}>{item.head}</td>
                       <td style={{ textAlign: 'right' }}>{Number(item.cy).toFixed(2)}</td>
@@ -4329,7 +4443,12 @@ function CashAccountUpload() {
                   ))}
 
                   <tr className="main-category-row"><td colSpan="4">LOAN & ADVANCE</td></tr>
-                  {reports.subitems.loans.map((item, idx) => (
+                  {reports.subitems.loans
+                    .filter(item => {
+                      const h = (item.head || '').toUpperCase();
+                      return !h.includes('SAHINUR') && !h.includes('MAMUN') && !h.includes('AFIRUL');
+                    })
+                    .map((item, idx) => (
                     <tr key={idx} className="sub-item-row">
                       <td style={{ paddingLeft: '2rem' }}>{item.head}</td>
                       <td style={{ textAlign: 'right' }}>{Number(item.cy).toFixed(2)}</td>
@@ -4345,7 +4464,12 @@ function CashAccountUpload() {
                   ))}
 
                   <tr className="main-category-row"><td colSpan="4">BALANCE WITH MDCCB BANK</td></tr>
-                  {reports.subitems.mddccb.map((item, idx) => (
+                  {reports.subitems.mddccb
+                    .filter(item => {
+                      const h = (item.head || '').toUpperCase();
+                      return !h.includes('SAHINUR') && !h.includes('MAMUN') && !h.includes('AFIRUL');
+                    })
+                    .map((item, idx) => (
                     <tr key={idx} className="sub-item-row">
                       <td style={{ paddingLeft: '2rem' }}>{item.head}</td>
                       <td style={{ textAlign: 'right' }}>{Number(item.cy).toFixed(2)}</td>
@@ -4361,7 +4485,12 @@ function CashAccountUpload() {
                   ))}
 
                   <tr className="main-category-row"><td colSpan="4">INVESTMENTS</td></tr>
-                  {reports.subitems.investment.map((item, idx) => (
+                  {reports.subitems.investment
+                    .filter(item => {
+                      const h = (item.head || '').toUpperCase();
+                      return !h.includes('SAHINUR') && !h.includes('MAMUN') && !h.includes('AFIRUL');
+                    })
+                    .map((item, idx) => (
                     <tr key={idx} className="sub-item-row">
                       <td style={{ paddingLeft: '2rem' }}>{item.head}</td>
                       <td style={{ textAlign: 'right' }}>{Number(item.cy).toFixed(2)}</td>
@@ -4377,7 +4506,12 @@ function CashAccountUpload() {
                   ))}
 
                   <tr className="main-category-row"><td colSpan="4">SHARE CAPITAL</td></tr>
-                  {reports.subitems.paidup.map((item, idx) => (
+                  {reports.subitems.paidup
+                    .filter(item => {
+                      const h = (item.head || '').toUpperCase();
+                      return !h.includes('SAHINUR') && !h.includes('MAMUN') && !h.includes('AFIRUL');
+                    })
+                    .map((item, idx) => (
                     <tr key={idx} className="sub-item-row">
                       <td style={{ paddingLeft: '2rem' }}>{item.head}</td>
                       <td style={{ textAlign: 'right' }}>{Number(item.cy).toFixed(2)}</td>

@@ -66,6 +66,7 @@ const isBalanceSheetType = (type) => {
 const correctedClassify = (code, type) => {
   if (!code) return type;
   const codeStr = String(code);
+  if (codeStr === '23583') return 'Balance with MDDCCB Bank';
   if (codeStr.startsWith('5')) return 'Income';
   if (codeStr.startsWith('6')) return 'Expense';
   return type;
@@ -383,10 +384,12 @@ app.post('/api/upload-cash-account', async (req, res) => {
     const classifyAccount = (code, name, isReceipt) => {
       if (code) {
         const codeStr = String(code);
+        if (codeStr === '23583') return 'Balance with MDDCCB Bank';
         if (codeStr.startsWith('5')) return 'Income';
         if (codeStr.startsWith('6')) return 'Expense';
       }
       const nameLower = name.toLowerCase();
+      if (nameLower.includes('afirul')) return 'Balance with MDDCCB Bank';
       
       // Explicit nominal check first to avoid overlap with Asset/Liability categories
       if (isReceipt && (
@@ -915,13 +918,15 @@ const mapLedgerBalancesWithPreviousYear = async (companyName, normalizedPeriod, 
       const type = correctedClassify(codeStr, r.type);
       let ob = r.openingBalance || 0;
       
-      const pyInfo = pyEndingBalances[codeStr];
-      if (pyInfo) {
-        ob = pyInfo.endingBalance;
-      } else {
-        const matchByHead = Object.values(pyEndingBalances).find(p => p.head.toLowerCase().trim() === r.head.toLowerCase().trim());
-        if (matchByHead) {
-          ob = matchByHead.endingBalance;
+      if (ob === 0) {
+        const pyInfo = pyEndingBalances[codeStr];
+        if (pyInfo) {
+          ob = pyInfo.endingBalance;
+        } else {
+          const matchByHead = Object.values(pyEndingBalances).find(p => p.head.toLowerCase().trim() === r.head.toLowerCase().trim());
+          if (matchByHead) {
+            ob = matchByHead.endingBalance;
+          }
         }
       }
 
