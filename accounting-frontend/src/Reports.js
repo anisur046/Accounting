@@ -2316,6 +2316,89 @@ function Reports() {
                     <h3 className="statement-name">BALANCE SHEET AS ON {getEndDate(coopMetadata.dateRange)}</h3>
                   </div>
 
+                  {/* Balance Sheet Summary Banner */}
+                  {coopReports && (
+                    <div className="bs-summary-banner-container no-print" style={{
+                      background: '#f8fafc',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '12px',
+                      padding: '1.25rem',
+                      marginBottom: '1.5rem',
+                      fontFamily: 'inherit'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.75rem' }}>
+                        <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: '#1e293b' }}>
+                          Balance Sheet Reconciliation Overview
+                        </h4>
+                        <span style={{
+                          padding: '4px 10px',
+                          borderRadius: '20px',
+                          fontSize: '0.75rem',
+                          fontWeight: 700,
+                          textTransform: 'uppercase',
+                          background: (Math.abs(coopReports.cyAssetsTotal - coopReports.cyLiabilitiesTotal) < 0.1 && Math.abs(coopReports.pyAssetsTotal - coopReports.pyLiabilitiesTotal) < 0.1) ? '#d1fae5' : '#fee2e2',
+                          color: (Math.abs(coopReports.cyAssetsTotal - coopReports.cyLiabilitiesTotal) < 0.1 && Math.abs(coopReports.pyAssetsTotal - coopReports.pyLiabilitiesTotal) < 0.1) ? '#065f46' : '#991b1b'
+                        }}>
+                          {(Math.abs(coopReports.cyAssetsTotal - coopReports.cyLiabilitiesTotal) < 0.1 && Math.abs(coopReports.pyAssetsTotal - coopReports.pyLiabilitiesTotal) < 0.1) ? '✓ Balanced' : '⚠ Out of Balance'}
+                        </span>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
+                        <div style={{ background: '#ffffff', padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', textAlign: 'center' }}>
+                          <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', marginBottom: '4px' }}>Previous Year Assets</span>
+                          <span style={{ display: 'block', fontSize: '1rem', fontWeight: 700, color: '#0f172a' }}>
+                            {Number(coopReports.pyAssetsTotal).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </span>
+                          <span style={{
+                            fontSize: '0.7rem',
+                            color: Math.abs(coopReports.pyAssetsTotal - coopReports.pyLiabilitiesTotal) < 0.1 ? '#10b981' : '#ef4444',
+                            fontWeight: 600
+                          }}>
+                            Diff: {Number(coopReports.pyAssetsTotal - coopReports.pyLiabilitiesTotal).toFixed(2)}
+                          </span>
+                        </div>
+                        <div style={{ background: '#ffffff', padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', textAlign: 'center' }}>
+                          <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', marginBottom: '4px' }}>Previous Year Liabilities</span>
+                          <span style={{ display: 'block', fontSize: '1rem', fontWeight: 700, color: '#0f172a' }}>
+                            {Number(coopReports.pyLiabilitiesTotal).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </span>
+                          <span style={{
+                            fontSize: '0.7rem',
+                            color: Math.abs(coopReports.pyAssetsTotal - coopReports.pyLiabilitiesTotal) < 0.1 ? '#10b981' : '#ef4444',
+                            fontWeight: 600
+                          }}>
+                            Matches Assets: {Math.abs(coopReports.pyAssetsTotal - coopReports.pyLiabilitiesTotal) < 0.1 ? 'Yes' : 'No'}
+                          </span>
+                        </div>
+                        <div style={{ background: '#ffffff', padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', textAlign: 'center' }}>
+                          <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', marginBottom: '4px' }}>Current Year Assets</span>
+                          <span style={{ display: 'block', fontSize: '1rem', fontWeight: 700, color: '#0f172a' }}>
+                            {Number(coopReports.cyAssetsTotal).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </span>
+                          <span style={{
+                            fontSize: '0.7rem',
+                            color: Math.abs(coopReports.cyAssetsTotal - coopReports.cyLiabilitiesTotal) < 0.1 ? '#10b981' : '#ef4444',
+                            fontWeight: 600
+                          }}>
+                            Matches Liabilities: {Math.abs(coopReports.cyAssetsTotal - coopReports.cyLiabilitiesTotal) < 0.1 ? 'Yes' : 'No'}
+                          </span>
+                        </div>
+                        <div style={{ background: '#ffffff', padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', textAlign: 'center' }}>
+                          <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', marginBottom: '4px' }}>Current Year Liabilities</span>
+                          <span style={{ display: 'block', fontSize: '1rem', fontWeight: 700, color: '#0f172a' }}>
+                            {Number(coopReports.cyLiabilitiesTotal).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </span>
+                          <span style={{
+                            fontSize: '0.7rem',
+                            color: Math.abs(coopReports.cyAssetsTotal - coopReports.cyLiabilitiesTotal) < 0.1 ? '#10b981' : '#ef4444',
+                            fontWeight: 600
+                          }}>
+                            Diff: {Number(coopReports.cyAssetsTotal - coopReports.cyLiabilitiesTotal).toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <table className="coop-table bs-table">
                     <thead>
                       <tr>
